@@ -1,43 +1,40 @@
-import { Controller, Get, Param, Query, Request, Headers } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, HttpStatus, Param, Ip } from '@nestjs/common';
+import { UserService } from './user.service';
+import {CreateUserDto} from './user.dto'
 
 
-@Controller('/users')
+@Controller('/user')
 export class UserController {
+    constructor(private readonly userService: UserService) {}
 
-
-    @Get('/profile/:id')
-    getProfile(@Request() req: Request) {
-        console.log('req', req.url)
+    @Post()
+    addUser(@Body() createUserDto: CreateUserDto) {
+        const user = this.userService.addUser(createUserDto);
         return {
-            userId: 1,
-            name: 'John Doe',
-            email: 'john.doe@example.com',
-            role: 'admin'
+            statusCode: HttpStatus.CREATED,
+            message: 'User added successfully',
         }
     }
 
-    @Get('/user-details/:id')
-    getUserDetails(@Param('id') params: string) {
-        console.log('params', params)
-        return 'User Details'
+    @Get()
+     getAllUsers() {
+    const users = this.userService.getAllUsers();
+    return users;
+}
+    
+
+    @Get(':id')
+    getUserById(@Param('id') id: number) {
+         this.userService.getUserById(+id);
     }
 
-
-    @Get('/search-user')
-    searchUser(@Query() query: any) {
-        console.log('query', query.name)
-        console.log('query', query.age)
-        return 'Search User'
-
-    }
-     
-
-    @Get('/headers')
-    getHeaders(@Headers('name') headers: any) {
-        console.log('headers', headers)
-        return 'Headers'
+    @Put(':id')
+    updateUser(@Param('id') id: number, @Body() updateUserDto: CreateUserDto) {
+         this.userService.updateUser(+id, updateUserDto);
     }
 
-
-
-} 
+    @Delete(':id')
+    deleteUser(@Param('id') id: number) {
+        return this.userService.deleteUser(+id);
+    }
+}
